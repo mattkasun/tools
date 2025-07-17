@@ -11,7 +11,7 @@ linters:
     - wsl_v5
   exclusions:
     generated: lax
-    presets:
+    # presets:
       #- comments
       #- common-false-positives
       #- legacy
