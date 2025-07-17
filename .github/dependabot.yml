@@ -1,0 +1,19 @@
+version: 2
+  # Enable version updates for go
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "master"
+    groups:
+      all-deps:
+        applies-to: version-updates
+        patterns:
+          - "*"
+  # Enable version updates for GitHubActions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "master"
