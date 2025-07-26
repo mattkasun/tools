@@ -1,9 +1,11 @@
-//nolint:testpackage
-package tools
+package tools_test
 
 import (
 	"math"
 	"testing"
+
+	"github.com/Kairum-Labs/should"
+	"github.com/mattkasun/tools"
 )
 
 func Test_prettyByteSize(t *testing.T) {
@@ -32,9 +34,7 @@ func Test_prettyByteSize(t *testing.T) {
 		// tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := PrettyByteSize(tt.args); got != tt.want {
-				t.Errorf("prettyByteSize() = %v, want %v", got, tt.want)
-			}
+			should.BeEqual(t, tools.PrettyByteSize(tt.args), tt.want)
 		})
 	}
 }
