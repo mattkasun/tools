@@ -1,9 +1,10 @@
 // Package logging provides slog helpers.
+//
+//nolint:exhaustruct
 package logging
 
 import (
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -28,81 +29,56 @@ type Logger struct {
 	output         io.Writer
 }
 
-type LogOption func(*Logger)
+// Option function.
+type Option func(*Logger)
 
-func Level(level slog.Leveler) LogOption {
+// Level sets the level option.
+func Level(level slog.Leveler) Option {
 	return func(l *Logger) {
 		l.level = level
 	}
 }
 
-func WithSource() LogOption {
+// WithSource sets the includeSource option.
+func WithSource() Option {
 	return func(l *Logger) {
 		l.includeSource = true
 	}
 }
 
-func TruncateSource() LogOption {
+// TruncateSource sets the includeSource and trucateSource optionsa.
+func TruncateSource() Option {
 	return func(l *Logger) {
 		l.includeSource = true
 		l.truncateSource = true
 	}
 }
 
-func TimeFormat(t string) LogOption {
+// TimeFormat set the timeFormat Option.
+func TimeFormat(t string) Option {
 	return func(l *Logger) {
 		l.timeFormat = t
 	}
 }
 
-func Output(w io.Writer) LogOption {
+// Output sets the output option.
+func Output(w io.Writer) Option {
 	return func(l *Logger) {
 		l.output = w
 	}
 }
 
-// New returns a new slog logger.
-func (l *Logger) new(opts ...LogOption) *Logger { //nolint:cyclop
+// new returns a new slog logger.
+func (l *Logger) new(opts ...Option) *Logger {
 	for _, opt := range opts {
 		opt(l)
 	}
 	l.defaults()
-	var flag int
-	var repSource func(groups []string, a slog.Attr) slog.Attr
-	if l.includeSource {
-		flag = log.Llongfile
-	}
-	if l.truncateSource {
-		flag = log.Lshortfile
-		repSource = func(_ []string, a slog.Attr) slog.Attr { //nolint:varnamelen
-			if a.Key == slog.SourceKey {
-				if source, _ := a.Value.Any().(*slog.Source); source != nil {
-					source.File = filepath.Base(source.File)
-				}
-			}
-			return a
-		}
-	}
-	repTime := func(_ []string, a slog.Attr) slog.Attr {
-		if a.Key == slog.TimeKey {
-			t := a.Value.Time()
-			a.Value = slog.StringValue(t.Format(l.timeFormat))
-		}
-		return a
-	}
-	log.SetFlags(log.LstdFlags | flag)
-	options := &slog.HandlerOptions{Level: l.level} //nolint:exhaustruct
+	options := &slog.HandlerOptions{Level: l.level}
 	if l.includeSource {
 		options.AddSource = true
 	}
-	replace := func(groups []string, a slog.Attr) slog.Attr {
-		a = repTime(groups, a)
-		if l.truncateSource {
-			a = repSource(groups, a)
-		}
-		return a
-	}
-	options.ReplaceAttr = replace
+	options.ReplaceAttr = l.replace()
 	switch l.kind {
 	case kindText:
 		l.Logger = slog.New(slog.NewTextHandler(l.output, options))
@@ -114,17 +90,49 @@ func (l *Logger) new(opts ...LogOption) *Logger { //nolint:cyclop
 	return l
 }
 
-func DefaultLogger(opts ...LogOption) *Logger {
+func (l *Logger) replace() func(group []string, a slog.Attr) slog.Attr {
+	var repSource func(groups []string, a slog.Attr) slog.Attr
+	if l.truncateSource {
+		repSource = func(_ []string, attr slog.Attr) slog.Attr {
+			if attr.Key == slog.SourceKey {
+				if source, _ := attr.Value.Any().(*slog.Source); source != nil {
+					source.File = filepath.Base(source.File)
+				}
+			}
+			return attr
+		}
+	}
+	repTime := func(_ []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.TimeKey {
+			t := a.Value.Time()
+			a.Value = slog.StringValue(t.Format(l.timeFormat))
+		}
+		return a
+	}
+
+	return func(groups []string, a slog.Attr) slog.Attr {
+		a = repTime(groups, a)
+		if l.truncateSource {
+			a = repSource(groups, a)
+		}
+		return a
+	}
+}
+
+// DefaultLogger returns a logger with slog default handler.
+func DefaultLogger(opts ...Option) *Logger {
 	l := &Logger{kind: kindDefault}
 	return l.new(opts...)
 }
 
-func TextLogger(opts ...LogOption) *Logger {
+// TextLogger returns a logger with a slog.TextHandler.
+func TextLogger(opts ...Option) *Logger {
 	l := &Logger{kind: kindText}
 	return l.new(opts...)
 }
 
-func JsonLogger(opts ...LogOption) *Logger {
+// JSONLogger returns a logger with a slog.JSONHandler.
+func JSONLogger(opts ...Option) *Logger {
 	l := Logger{kind: kindJSON}
 	return l.new(opts...)
 }

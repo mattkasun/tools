@@ -13,14 +13,14 @@ import (
 )
 
 func TestDefaultLoggerCreation(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	logger := logging.DefaultLogger()
 	should.NotBeNil(t, logger)
 	should.BeTrue(t, logger.Handler().Enabled(context.TODO(), slog.LevelInfo))
 }
 
 func TestTextLoggerCreation(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(logging.Output(&buf))
 	should.NotBeNil(t, logger)
@@ -30,9 +30,9 @@ func TestTextLoggerCreation(t *testing.T) {
 }
 
 func TestJsonLoggerCreation(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	var buf bytes.Buffer
-	logger := logging.JsonLogger(logging.Output(&buf))
+	logger := logging.JSONLogger(logging.Output(&buf))
 	should.NotBeNil(t, logger)
 
 	logger.Info("json test", "foo", "bar")
@@ -45,20 +45,20 @@ func TestJsonLoggerCreation(t *testing.T) {
 }
 
 func TestTimeFormat(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	var buf bytes.Buffer
-	tf := "2006-01-02"
+	format := "2006-01-02"
 	logger := logging.TextLogger(
 		logging.Output(&buf),
-		logging.TimeFormat(tf),
+		logging.TimeFormat(format),
 	)
 
 	logger.Info("check time")
-	should.ContainSubstring(t, buf.String(), time.Now().Format(tf))
+	should.ContainSubstring(t, buf.String(), time.Now().Format(format))
 }
 
 func TestWithSource(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(
 		logging.Output(&buf),
@@ -72,7 +72,7 @@ func TestWithSource(t *testing.T) {
 }
 
 func TestTruncateSource(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(
 		logging.Output(&buf),
@@ -86,9 +86,9 @@ func TestTruncateSource(t *testing.T) {
 }
 
 func TestLevelOption(t *testing.T) {
-	t.Helper()
+	t.Parallel()
 	var buf bytes.Buffer
-	logger := logging.JsonLogger(
+	logger := logging.JSONLogger(
 		logging.Output(&buf),
 		logging.Level(slog.LevelWarn),
 	)
