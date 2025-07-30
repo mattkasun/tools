@@ -12,36 +12,45 @@ import (
 	"github.com/mattkasun/tools/logging"
 )
 
-func TestDefaultLoggerCreation(t *testing.T) {
+func TestDefaultLogger(t *testing.T) {
 	t.Parallel()
 	logger := logging.DefaultLogger()
 	should.NotBeNil(t, logger)
-	should.BeTrue(t, logger.Handler().Enabled(context.TODO(), slog.LevelInfo))
+	should.BeTrue(t, logger.Handler().Enabled(context.Background(), slog.LevelInfo))
+	should.BeFalse(t, logger.Handler().Enabled(context.Background(), slog.LevelDebug))
 }
 
-func TestTextLoggerCreation(t *testing.T) {
+func TestTextLogger(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(logging.Output(&buf))
 	should.NotBeNil(t, logger)
-
 	logger.Info("hello world")
 	should.ContainSubstring(t, buf.String(), "hello world")
 }
 
-func TestJsonLoggerCreation(t *testing.T) {
+func TestJsonLogger(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.JSONLogger(logging.Output(&buf))
 	should.NotBeNil(t, logger)
 
 	logger.Info("json test", "foo", "bar")
-
 	var out map[string]any
 	err := json.Unmarshal(buf.Bytes(), &out)
 	should.BeNil(t, err)
 	should.BeEqual(t, "json test", out["msg"])
 	should.BeEqual(t, "bar", out["foo"])
+}
+
+func TestDicardLogger(t *testing.T) {
+	t.Parallel()
+	logger := logging.DiscardLogger()
+	should.NotBeNil(t, logger)
+	should.BeFalse(t, logger.Handler().Enabled(context.Background(), slog.LevelError))
+	should.BeFalse(t, logger.Handler().Enabled(context.Background(), slog.LevelWarn))
+	should.BeFalse(t, logger.Handler().Enabled(context.Background(), slog.LevelInfo))
+	should.BeFalse(t, logger.Handler().Enabled(context.Background(), slog.LevelDebug))
 }
 
 func TestTimeFormat(t *testing.T) {
@@ -52,7 +61,6 @@ func TestTimeFormat(t *testing.T) {
 		logging.Output(&buf),
 		logging.TimeFormat(format),
 	)
-
 	logger.Info("check time")
 	should.ContainSubstring(t, buf.String(), time.Now().Format(format))
 }
@@ -64,7 +72,6 @@ func TestWithSource(t *testing.T) {
 		logging.Output(&buf),
 		logging.WithSource(),
 	)
-
 	logger.Info("with source")
 	logOutput := buf.String()
 	// Should only contain filename
@@ -78,7 +85,6 @@ func TestTruncateSource(t *testing.T) {
 		logging.Output(&buf),
 		logging.TruncateSource(),
 	)
-
 	logger.Info("with source")
 	logOutput := buf.String()
 	// Should only contain filename
@@ -92,13 +98,12 @@ func TestLevelOption(t *testing.T) {
 		logging.Output(&buf),
 		logging.Level(slog.LevelWarn),
 	)
-
 	logger.Info("should not appear")
 	logger.Warn("should appear")
 	logOutput := buf.String()
 	var out map[string]string
 	err := json.Unmarshal(buf.Bytes(), &out)
 	should.BeNil(t, err)
-	should.NotContainKey(t, out, "should appear")
+	should.NotContainValue(t, out, "should not appear")
 	should.ContainSubstring(t, logOutput, "should appear")
 }

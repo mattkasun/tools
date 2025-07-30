@@ -137,6 +137,13 @@ func JSONLogger(opts ...Option) *Logger {
 	return l.new(opts...)
 }
 
+// DiscardLogger returns a logger with slog.DiscardHandler.
+func DiscardLogger() *Logger {
+	return &Logger{
+		Logger: slog.New(slog.DiscardHandler),
+	}
+}
+
 func (l *Logger) defaults() {
 	if l.level == nil {
 		l.level = slog.LevelInfo

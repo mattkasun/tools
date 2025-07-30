@@ -1,6 +1,6 @@
 module github.com/mattkasun/tools
 
-go 1.22
+go 1.24
 
 require (
 	github.com/Kairum-Labs/should v0.1.0
