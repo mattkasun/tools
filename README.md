@@ -11,3 +11,7 @@ set of utility functions
 slog helpers
 * create logger with default, disard, text or json handler
 * options to set output, loglevel, timeformat, include source, truncate source
+### config
+configuration helper
+* reads yaml config file from XDG_CONFIG_HOME i.e. ~/.config/progname/config into user supplied struct
+* value is cached for quicker subsequent lookups

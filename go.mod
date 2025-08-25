@@ -5,6 +5,7 @@ go 1.24
 require (
 	github.com/Kairum-Labs/should v0.1.0
 	github.com/fatih/color v1.18.0
+	github.com/goccy/go-yaml v1.18.0
 )
 
 require (
