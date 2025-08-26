@@ -15,26 +15,24 @@ var (
 	errInteraceConversion = errors.New("interface conversion")
 )
 
-// Get returns the cached value of the configuration struct if previously read
-// else it reads struct from configuration path.
+// Get returns the configuration data for the supplied configuration struct type T, caching it after first retrieval.
 func Get[T any]() (*T, error) {
-	if cached != nil {
-		data, ok := cached.(*T)
-		if !ok {
-			return data, fmt.Errorf("%w: wanted %T but cached type is %T", errInteraceConversion, data, cached)
+	if cached == nil {
+		data, err := fromFile[T]()
+		if err != nil {
+			return nil, err
 		}
-		return data, nil
+		cached = data
 	}
-	data, err := fromFile[T]()
-	if err != nil {
-		return nil, err
+	data, ok := cached.(*T)
+	if !ok {
+		return data, fmt.Errorf("%w: wanted %T but cached type is %T", errInteraceConversion, data, cached)
 	}
-	return data, err
+	return data, nil
 }
 
-// func fromFile populates the config struct from a yaml file in the XDG_CONFIG_HOME dir
-// config file location is $XDG_CONFIG_HOME/executable name/config
-// decoded structure is cached for faster subsequent retrievals.
+// func fromFile reads the yaml configuration file and unmarshals it into a struct of type T
+// config file location is $XDG_CONFIG_HOME/executable name/config.
 func fromFile[T any]() (*T, error) {
 	progName := filepath.Base(os.Args[0])
 	xdg, ok := os.LookupEnv("XDG_CONFIG_HOME")
@@ -50,6 +48,5 @@ func fromFile[T any]() (*T, error) {
 	if err := yaml.Unmarshal(bytes, &data); err != nil {
 		return nil, fmt.Errorf("unmarshal %w", err)
 	}
-	cached = &data
 	return &data, nil
 }
