@@ -6,7 +6,6 @@ linters:
   disable:
     - depguard
     - nlreturn
-    - noctx
     - noinlineerr
     - wsl
     - wsl_v5

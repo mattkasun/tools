@@ -8,10 +8,9 @@ import (
 	"github.com/mattkasun/tools"
 )
 
-func Test_prettyByteSize(t *testing.T) {
+func TestPrettyByteSize(t *testing.T) {
 	overflow := math.MaxInt
 	overflow++
-	t.Parallel()
 	tests := []struct {
 		name string
 		args int
@@ -30,10 +29,18 @@ func Test_prettyByteSize(t *testing.T) {
 		{"Overflow", overflow, "-8.00 EiB"},
 		{"Negative size", -1536, "-1.50 KiB"}, // still shows absolute value
 	}
+	t.Run("colour output", func(t *testing.T) {
+		expected := "B"
+		if tools.UseColour() {
+			expected = tools.Green + "B" + tools.Reset
+		}
+		should.BeEqual(t, tools.PrettyByteSize(642), "642 "+expected)
+		// t.Log(tools.PrettyByteSize(642))
+	})
 	for _, tt := range tests {
 		// tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+			t.Setenv("NO_COLOUR", "true")
 			should.BeEqual(t, tools.PrettyByteSize(tt.args), tt.want)
 		})
 	}
