@@ -5,6 +5,7 @@ package logging
 
 import (
 	"io"
+	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -43,6 +44,7 @@ func Level(level slog.Leveler) Option {
 func WithSource() Option {
 	return func(l *Logger) {
 		l.includeSource = true
+		log.SetFlags(log.LstdFlags | log.Llongfile)
 	}
 }
 
@@ -51,10 +53,12 @@ func TruncateSource() Option {
 	return func(l *Logger) {
 		l.includeSource = true
 		l.truncateSource = true
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	}
 }
 
 // TimeFormat set the timeFormat Option.
+// has no impact on DefaultLogger.
 func TimeFormat(t string) Option {
 	return func(l *Logger) {
 		l.timeFormat = t
@@ -65,6 +69,7 @@ func TimeFormat(t string) Option {
 func Output(w io.Writer) Option {
 	return func(l *Logger) {
 		l.output = w
+		log.SetOutput(w)
 	}
 }
 
