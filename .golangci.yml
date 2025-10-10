@@ -7,6 +7,7 @@ linters:
     - depguard
     - nlreturn
     - noinlineerr
+    - paralleltest
     - wsl
     - wsl_v5
   exclusions:

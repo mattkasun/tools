@@ -15,3 +15,7 @@ slog helpers
 configuration helper
 * reads yaml config file from XDG_CONFIG_HOME i.e. ~/.config/progname/config into user supplied struct
 * value is cached for quicker subsequent lookups
+### money
+small currency package for handling money
+* supports curreny values up to 100 trillon
+* helper funcs for tax calculations
