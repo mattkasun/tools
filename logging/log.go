@@ -26,6 +26,7 @@ type Logger struct {
 	level          slog.Leveler
 	includeSource  bool
 	truncateSource bool
+	setDefault     bool
 	timeFormat     string // loyout constant from time package
 	output         io.Writer
 }
@@ -48,12 +49,19 @@ func WithSource() Option {
 	}
 }
 
-// TruncateSource sets the includeSource and trucateSource optionsa.
+// TruncateSource sets the includeSource and trucateSource options.
 func TruncateSource() Option {
 	return func(l *Logger) {
 		l.includeSource = true
 		l.truncateSource = true
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
+	}
+}
+
+// SetDefault sets slog logger to Logger.
+func SetDefault() Option {
+	return func(l *Logger) {
+		l.setDefault = true
 	}
 }
 
@@ -91,6 +99,9 @@ func (l *Logger) new(opts ...Option) *Logger {
 		l.Logger = slog.New(slog.NewJSONHandler(l.output, options))
 	default:
 		l.Logger = slog.Default()
+	}
+	if l.setDefault {
+		slog.SetDefault(l.Logger)
 	}
 	return l
 }

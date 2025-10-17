@@ -13,7 +13,6 @@ import (
 )
 
 func TestDefaultLogger(t *testing.T) {
-	t.Parallel()
 	logger := logging.DefaultLogger()
 	should.NotBeNil(t, logger)
 	should.BeTrue(t, logger.Handler().Enabled(context.Background(), slog.LevelInfo))
@@ -21,7 +20,6 @@ func TestDefaultLogger(t *testing.T) {
 }
 
 func TestTextLogger(t *testing.T) {
-	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(logging.Output(&buf))
 	should.NotBeNil(t, logger)
@@ -30,7 +28,6 @@ func TestTextLogger(t *testing.T) {
 }
 
 func TestJsonLogger(t *testing.T) {
-	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.JSONLogger(logging.Output(&buf))
 	should.NotBeNil(t, logger)
@@ -44,7 +41,6 @@ func TestJsonLogger(t *testing.T) {
 }
 
 func TestDicardLogger(t *testing.T) {
-	t.Parallel()
 	logger := logging.DiscardLogger()
 	should.NotBeNil(t, logger)
 	should.BeFalse(t, logger.Handler().Enabled(context.Background(), slog.LevelError))
@@ -54,7 +50,6 @@ func TestDicardLogger(t *testing.T) {
 }
 
 func TestTimeFormat(t *testing.T) {
-	t.Parallel()
 	var buf bytes.Buffer
 	format := "2006-01-02"
 	logger := logging.TextLogger(
@@ -66,7 +61,6 @@ func TestTimeFormat(t *testing.T) {
 }
 
 func TestWithSource(t *testing.T) {
-	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(
 		logging.Output(&buf),
@@ -79,7 +73,6 @@ func TestWithSource(t *testing.T) {
 }
 
 func TestTruncateSource(t *testing.T) {
-	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.TextLogger(
 		logging.Output(&buf),
@@ -92,7 +85,6 @@ func TestTruncateSource(t *testing.T) {
 }
 
 func TestLevelOption(t *testing.T) {
-	t.Parallel()
 	var buf bytes.Buffer
 	logger := logging.JSONLogger(
 		logging.Output(&buf),
@@ -106,4 +98,35 @@ func TestLevelOption(t *testing.T) {
 	should.BeNil(t, err)
 	should.NotContainValue(t, out, "should not appear")
 	should.ContainSubstring(t, logOutput, "should appear")
+}
+
+func TestSetDefaultOption(t *testing.T) {
+	t.Run("set", func(t *testing.T) {
+		var buf bytes.Buffer
+		logger := logging.JSONLogger(
+			logging.Output(&buf),
+			logging.SetDefault(),
+			logging.TimeFormat(time.DateOnly),
+		)
+		logger.Info("testing", "hello", "world")
+		first := buf
+		buf.Reset()
+		slog.Info("testing", "hello", "world")
+		second := buf
+		should.BeEqual(t, first, second)
+	})
+	t.Run("unset", func(t *testing.T) {
+		var buf bytes.Buffer
+		logger := logging.JSONLogger(
+			logging.Output(&buf),
+			logging.TimeFormat(time.DateOnly),
+		)
+		logger.Info("testing", "hello", "world")
+		first := buf
+		buf.Reset()
+		slogger := slog.NewJSONHandler(&buf, nil)
+		slog.SetDefault(slog.New(slogger))
+		slog.Info("testing", "hello", "world")
+		should.NotBeEqual(t, first.String(), buf.String())
+	})
 }
