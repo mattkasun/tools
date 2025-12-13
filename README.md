@@ -9,7 +9,7 @@ set of utility functions
 ## packages
 ### logging
 slog helpers
-* create logger with default, disard, text or json handler
+* create logger with default, discard, text or json handler
 * options to set output, loglevel, timeformat, include source, truncate source
 ### config
 configuration helper
