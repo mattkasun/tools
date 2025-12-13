@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/goccy/go-yaml"
+	"go.yaml.in/yaml/v4"
 )
 
 var (
@@ -35,9 +35,9 @@ func Get[T any]() (*T, error) {
 // config file location is $XDG_CONFIG_HOME/executable name/config.
 func fromFile[T any]() (*T, error) {
 	progName := filepath.Base(os.Args[0])
-	xdg, ok := os.LookupEnv("XDG_CONFIG_HOME")
-	if !ok {
-		xdg = os.Getenv("HOME") + "/.config"
+	xdg, err := os.UserConfigDir()
+	if err != nil {
+		return nil, fmt.Errorf("configuration dir %w", err)
 	}
 	cfgfile := xdg + "/" + progName + "/config"
 	bytes, err := os.ReadFile(cfgfile) //nolint:gosec
