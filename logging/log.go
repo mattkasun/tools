@@ -160,6 +160,11 @@ func DiscardLogger() *Logger {
 	}
 }
 
+// StandardLogger returns a logger with standard options set.
+func StandardLogger() *Logger {
+	return DefaultLogger(TruncateSource(), TimeFormat(time.DateTime), SetDefault())
+}
+
 func (l *Logger) defaults() {
 	if l.level == nil {
 		l.level = slog.LevelInfo
