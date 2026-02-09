@@ -26,7 +26,8 @@ func Get[T any]() (*T, error) {
 	}
 	data, ok := cached.(*T)
 	if !ok {
-		return data, fmt.Errorf("%w: wanted %T but cached type is %T", errInteraceConversion, data, cached)
+		return data, fmt.Errorf("%w: wanted %T but cached type is %T",
+			errInteraceConversion, data, cached)
 	}
 	return data, nil
 }

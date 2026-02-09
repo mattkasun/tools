@@ -34,3 +34,17 @@ func UserDataDir() (string, error) {
 	}
 	return dir, nil
 }
+
+// AppDataDir returns default application data dir.
+func AppDataDir() (string, error) {
+	dir, err := UserDataDir()
+	dir = filepath.Join(dir, filepath.Base(os.Args[0]))
+	return dir, err
+}
+
+// AppConfigDir returns default application config dir.
+func AppConfigDir() (string, error) {
+	dir, err := os.UserConfigDir()
+	dir = filepath.Join(dir, filepath.Base(os.Args[0]))
+	return dir, err
+}

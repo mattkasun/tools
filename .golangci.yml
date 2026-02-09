@@ -10,6 +10,10 @@ linters:
     - paralleltest
     - wsl
     - wsl_v5
+  settings:
+    wrapcheck:
+      extra-ignore-sigs:
+        - os.UserConfigDir
   exclusions:
     generated: lax
     # presets:
@@ -19,9 +23,7 @@ linters:
       #- std-error-handling
 formatters:
   enable:
-    - gci
-    - gofmt
     - gofumpt
-    - goimports
+    - golines
   exclusions:
     generated: lax

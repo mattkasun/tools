@@ -25,7 +25,7 @@ func TestPrettyByteSize(t *testing.T) {
 		{"Large value (1 TiB)", 1 << 40, "1.00 TiB"},
 		{"Large value (1 PiB)", 1 << 50, "1.00 PiB"},
 		{"Large value (1 EiB)", 1 << 60, "1.00 EiB"},
-		{"Very large (beyond EiB)", math.MaxInt, "8.00 EiB"}, // Max handled before overflow fallback
+		{"Very large (beyond EiB)", math.MaxInt, "8.00 EiB"}, // Max handled before overflow
 		{"Overflow", overflow, "-8.00 EiB"},
 		{"Negative size", -1536, "-1.50 KiB"}, // still shows absolute value
 	}
