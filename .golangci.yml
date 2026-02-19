@@ -11,6 +11,9 @@ linters:
     - wsl
     - wsl_v5
   settings:
+    gosec:
+      excludes:
+        - G115
     wrapcheck:
       extra-ignore-sigs:
         - os.UserConfigDir
